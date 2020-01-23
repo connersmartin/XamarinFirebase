@@ -18,7 +18,6 @@ namespace XamarinFirebase.Services
 
         static Channel c = new Channel(FirestoreClient.DefaultEndpoint.ToString(), cc);
         static FirestoreClient fc = FirestoreClient.Create(c);
-        //doesn't work need to figure out how to utlize the google credential here!
         FirestoreDb db = FirestoreDb.Create("xamarinfirebasea", client: fc);
 
 
@@ -51,6 +50,44 @@ namespace XamarinFirebase.Services
             }
 
             return p;
+        }
+
+        public async Task UpdateData(Dictionary<string, object> paramDict)
+        {
+            Query query = db.Collection("data");
+
+            QuerySnapshot snapshot = await query.GetSnapshotAsync();
+            var id = "";
+            foreach (DocumentSnapshot ds in snapshot.Documents)
+            {                
+                if (ds.GetValue<int>("ID") == Convert.ToInt32(paramDict["ID"]))
+                {
+                    id = ds.Id;
+                }
+            }
+
+            DocumentReference docRef = db.Collection("data").Document(id);
+
+            await docRef.UpdateAsync(paramDict);
+        }
+
+        public async Task DeleteData(Dictionary<string,object> paramDict)
+        {
+            Query query = db.Collection("data");
+
+            QuerySnapshot snapshot = await query.GetSnapshotAsync();
+            var id = "";
+            foreach (DocumentSnapshot ds in snapshot.Documents)
+            {
+                if (ds.GetValue<int>("ID") == Convert.ToInt32(paramDict["ID"]))
+                {
+                    id = ds.Id;
+                }
+            }
+
+            DocumentReference docRef = db.Collection("data").Document(id);
+
+            await docRef.DeleteAsync();
         }
     }
 }

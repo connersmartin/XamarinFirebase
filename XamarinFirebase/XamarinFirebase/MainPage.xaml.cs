@@ -28,28 +28,49 @@ namespace XamarinFirebase
             base.OnAppearing();
             var allPersons = await h.GetAllPersons();
             lstPersons.ItemsSource = allPersons;
-        }
+        }     
 
         private async void BtnRetrieve_Clicked(object sender, EventArgs e)
         {
-            var a = await f.GetData();
-        }
+            var person = await h.GetPerson(Convert.ToInt32(txtId.Text));
 
-        private  void BtnAdd_Clicked(object sender, EventArgs e)
-        {
-
-            var b = f.AddData(new Dictionary<string, object>()
+            if (person!=null)
             {
-                {"ID", 3 },
-                {"Name", "What" }
-            });
+                txtId.Text = person.PersonId.ToString();
+                txtName.Text = person.Name;
+                await DisplayAlert("Success", "Person found!", "Ok");
+            }
+            else
+            {
+                await DisplayAlert("Not a success", "Person not there", "Ok");
+            }
         }
 
-        private  void BtnDelete_Clicked(object sender, EventArgs e)
+        private async void BtnAdd_Clicked(object sender, EventArgs e)
         {
+            await h.AddPerson(Convert.ToInt32(txtId.Text), txtName.Text);
+            ResetFields("added");
+            
         }
-        private  void BtnUpdate_Clicked(object sender, EventArgs e)
+        private async void BtnUpdate_Clicked(object sender, EventArgs e)
         {
+            await h.UpdatePerson(Convert.ToInt32(txtId.Text), txtName.Text);
+            ResetFields("updated");
+        }
+
+        private async void BtnDelete_Clicked(object sender, EventArgs e)
+        {
+            await h.DeletePerson(Convert.ToInt32(txtId.Text));
+            ResetFields("deleted");
+        }
+
+        private async void ResetFields(string text)
+        {
+            txtId.Text = string.Empty;
+            txtName.Text = string.Empty;
+
+            await DisplayAlert("Success", "Person "+text+" successfully", "Ok");
+            lstPersons.ItemsSource = await h.GetAllPersons();
         }
     }
 }
